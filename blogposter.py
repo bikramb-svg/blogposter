@@ -24,17 +24,20 @@ SHEET_ID = os.getenv("SHEET_ID")
 # GOOGLE SHEETS CONNECT
 # ------------------------
 def connect_sheet():
+    creds_json = os.getenv("GOOGLE_CREDS_JSON")
+    creds_dict = json.loads(creds_json)
+
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive"
     ]
 
-    creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_CREDS, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
     client = gspread.authorize(creds)
-
     sheet = client.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
-    return sheet
 
+    return sheet
 
 # ------------------------
 # FETCH BLOG
