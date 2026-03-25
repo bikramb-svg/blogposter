@@ -2,7 +2,7 @@ name: Run Blog Poster
 
 on:
   schedule:
-    - cron: '30 2 * * *'  # runs daily (UTC)
+    - cron: '30 8 * * *'  # runs daily (UTC)
   workflow_dispatch:      # allows manual run
 
 jobs:
