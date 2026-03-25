@@ -255,42 +255,34 @@ def run():
     sheet = connect_sheet()
     rows = sheet.get_all_records()
 
-    urls = []
-    row_map = []
-
     for i, row in enumerate(rows, start=2):
         if row.get("Status") != "posted":
-            urls.append(row["URL"])
-            row_map.append(i)
 
-    schedule = generate_schedule(datetime.datetime.now(), len(urls))
+            url = row["URL"]
 
-    for idx, url in enumerate(urls):
-        try:
-            title, content, image = fetch_blog(url)
-            print("------ DEBUG START ------")
-            print("TITLE:", title)
-            print("CONTENT LENGTH:", len(content))
-            print("CONTENT SAMPLE:", content[:300])
-            print("------ DEBUG END ------")
+            try:
+                title, content, image = fetch_blog(url)
 
-            seo_title, summary = ai_generate(content, title)
-            tags = extract_keywords(content)
+                seo_title, summary = ai_generate(content, title)
+                tags = extract_keywords(content)
 
-            post_html = format_post(seo_title, summary, url, image)
-            publish_time = schedule[idx]
+                post_html = format_post(seo_title, summary, url, image)
 
-            post_wordpress(seo_title, post_html, tags, publish_time)
+                # 👉 schedule ONLY ONE post
+                publish_time = generate_schedule(datetime.datetime.now(), 1)[0]
 
-            # update sheet
-            sheet.update_cell(row_map[idx], 2, "posted")
-            sheet.update_cell(row_map[idx], 3, seo_title)
+                post_wordpress(seo_title, post_html, tags, publish_time)
 
-            print(f"Scheduled: {seo_title}")
+                # ✅ update ONLY this row
+                sheet.update_cell(i, 2, "posted")
+                sheet.update_cell(i, 3, seo_title)
 
-        except Exception as e:
-            print(f"Error: {url} -> {e}")
+                print(f"Posted: {seo_title}")
 
+                break  # 🚨 VERY IMPORTANT (stop after 1)
+
+            except Exception as e:
+                print(f"Error: {url} -> {e}")
 
 # ------------------------
 # RUN
