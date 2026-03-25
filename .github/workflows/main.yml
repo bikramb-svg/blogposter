@@ -1,4 +1,4 @@
-name: Run Blog Poster
+name: Run Blog Poster v2
 
 on:
   schedule:
